@@ -19,6 +19,7 @@ import { createGodsViewLayers, normalizeAlpr, normalizeCctv } from './lib/feeds/
 import { createRegistry } from './lib/registry.js';
 import { createNearby } from './lib/nearby.js';
 import { createAnalyst } from './lib/ai.js';
+import { openBrowser } from './lib/open.js';
 
 if (typeof process.loadEnvFile !== 'function') {
   console.error(`GodsView Command needs Node.js 20.12 or later; this is ${process.version}. Install Node 24 (GodsView needs it too) and try again.`);
@@ -27,16 +28,16 @@ if (typeof process.loadEnvFile !== 'function') {
 loadDotEnv();
 const config = readConfig();
 
-const gev = new GodsView({
-  ...config.gev,
-  // Let GodsView's embed mode be framed by this console.
-  frameAncestors: [`http://localhost:${config.port}`, `http://127.0.0.1:${config.port}`],
-});
+const gev = new GodsView(config.gev);
 const registry = createRegistry();
 const nws = createNwsFeed(config.nws);
 const waze = createWazeFeed(config.waze);
 const radar = createRadarFeed();
-const gevLayers = createGodsViewLayers({ gev, geocoderUserAgent: config.geocoder.userAgent });
+const gevLayers = createGodsViewLayers({
+  gev,
+  publicUrl: config.gev.publicUrl,
+  geocoderUserAgent: config.geocoder.userAgent,
+});
 const nearby = createNearby({ gevLayers, waze, nws, registry });
 const analyst = createAnalyst({
   config,
@@ -235,8 +236,13 @@ server.on('error', (error) => {
 
 server.listen(config.port, config.host, () => {
   const shown = ['127.0.0.1', '0.0.0.0', '::', 'localhost'].includes(config.host) ? 'localhost' : config.host;
-  console.log(`GodsView Command on http://${shown}:${config.port}`);
-  console.log(`Open http://${shown}:${config.port} in a browser on this computer. Keep this window open while you use it.`);
+  const local = `http://${shown}:${config.port}`;
+  console.log(`GodsView Command on ${local}`);
+  if (config.publicUrl) console.log(`Open ${config.publicUrl} in your browser (this server's public address).`);
+  else if (config.openBrowser && process.stdout.isTTY && openBrowser(local))
+    console.log(`Opening ${local} in your browser. If it does not open, paste that address into a browser on this computer.`);
+  else console.log(`Open ${local} in a browser on this computer.`);
+  console.log('Keep this window open while you use it; close it or press Ctrl+C to stop.');
   console.log(`GodsView (God's Eye View) expected at ${config.gev.url}${config.gev.dir ? ` (from ${config.gev.dir})` : ''}`);
   if (!config.ai.keyDetected) console.log('ANTHROPIC_API_KEY is not set; the analyst will try an `ant auth login` profile.');
   gev.init();

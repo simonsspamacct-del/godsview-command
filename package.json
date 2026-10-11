@@ -9,9 +9,11 @@
     "node": ">=20.12"
   },
   "scripts": {
-    "start": "node server.js",
+    "start": "node scripts/start.mjs",
+    "serve": "node server.js",
+    "check": "node scripts/start.mjs --check",
     "dev": "node --watch server.js",
-    "test": "node --test \"test/*.test.js\""
+    "test": "node --test test/feeds.test.js test/server.test.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.133.0"

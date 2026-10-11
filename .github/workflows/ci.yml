@@ -1,0 +1,60 @@
+# Runs automatically on every push and pull request, and on demand from the
+# Actions tab ("Run workflow").
+#   test        unit and end-to-end tests, then starts the console and loads
+#               the page, on Windows, macOS and Linux.
+#   full-stack  downloads and installs the real God's Eye View, starts the
+#               console (which starts GodsView), and checks them together.
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests · Node ${{ matrix.node }} · ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Start the console and load the page
+        run: npm run check
+
+  full-stack:
+    name: Full stack with God's Eye View
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install the console, download and install GodsView
+        run: node scripts/start.mjs --yes --setup-only
+      - name: Start the console (it starts GodsView)
+        run: |
+          nohup node server.js > console.log 2>&1 &
+          echo "Console started in the background."
+        env:
+          OPEN_BROWSER: '0'
+      - name: Check the console and GodsView together
+        run: node scripts/integration-check.mjs http://127.0.0.1:5050 --wait 300
+      - name: Console log
+        if: always()
+        run: cat console.log || true

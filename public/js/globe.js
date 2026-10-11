@@ -51,7 +51,7 @@ export function cameraLookingAt({ lat, lon }, { headingDeg = 0, pitchDeg = -35, 
   };
 }
 
-export function createGlobe({ frame, overlay, gevUrl, onStart }) {
+export function createGlobe({ frame, overlay, gevUrl, onStart, onOpenFull }) {
   const origin = new URL(gevUrl).origin;
   let ready = false;
   let loaded = false;
@@ -111,15 +111,29 @@ export function createGlobe({ frame, overlay, gevUrl, onStart }) {
   }
 
   function renderBlocked() {
+    const codespace = /\.github\.dev$/.test(location.hostname);
     card(
-      h('h2', {}, 'GodsView is running but will not embed here'),
+      h('h2', {}, 'GodsView is running but will not show in this pane'),
+      codespace
+        ? h(
+            'p',
+            { class: 'muted' },
+            'In a codespace, the browser may block GodsView inside this page because it comes from another forwarded port. Open it in its own tab instead; the map and panels here keep working.',
+          )
+        : [
+            h(
+              'p',
+              { class: 'muted' },
+              'GodsView only lets pages it names frame its embed mode. Add this line to the .env in your gods-eye-view folder and restart it (this console adds it for you when it starts GodsView itself):',
+            ),
+            h('pre', {}, `GEV_EMBED_FRAME_ANCESTORS=${location.origin}`),
+          ],
       h(
-        'p',
-        { class: 'muted' },
-        'GodsView only lets pages it names frame its embed mode. Add this line to the .env in your gods-eye-view folder and restart it (this console adds it for you when it starts GodsView itself):',
+        'div',
+        { class: 'row-actions', style: { justifyContent: 'center' } },
+        h('button', { class: 'primary', type: 'button', onClick: () => onOpenFull?.() }, 'Open GodsView in a new tab'),
+        h('button', { class: 'ghost', type: 'button', onClick: () => load(pending) }, 'Try again'),
       ),
-      h('pre', {}, `GEV_EMBED_FRAME_ANCESTORS=${location.origin}`),
-      h('div', {}, h('button', { class: 'primary', type: 'button', onClick: () => load(pending) }, 'Try again')),
     );
   }
 

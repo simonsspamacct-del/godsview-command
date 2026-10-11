@@ -35,6 +35,107 @@ cameras, ALPR readers and globe pane come from the GodsView test stand-in in
 cloud machine the screenshot was taken on. The analyst's answer is from a
 scripted test model.</sub>
 
+## Start here
+
+There are two ways to run it. Both open the console in your browser for you,
+so you never have to type an address.
+
+| | Run on GitHub (Codespaces) | Run on your computer |
+| --- | --- | --- |
+| Install anything? | No | Node.js (one installer) |
+| Works on | Any computer with a browser | Windows, macOS, Linux |
+| Everything works? | Mostly: Waze and GodsView's voice AI don't (see below) | Yes |
+| Cost | Free monthly hours on personal GitHub accounts | Free |
+
+### Option A: run it on GitHub, nothing to install
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/simonsspamacct-del/godsview-command?quickstart=1)
+
+1. Click the button above (you need to be signed in to GitHub), then
+   **Create codespace**.
+2. Wait. The first time takes about 5–10 minutes: GitHub installs the console
+   and downloads and installs GodsView. You can watch it in the terminal at
+   the bottom of the editor.
+3. The console opens in a new browser tab by itself. If your browser blocked
+   the pop-up, open the **Ports** tab at the bottom of the editor and click
+   the globe icon next to **GodsView Command (5050)**.
+4. Optional, for the AI analyst: add your Anthropic API key as a Codespaces
+   secret named `ANTHROPIC_API_KEY` at
+   [github.com/settings/codespaces](https://github.com/settings/codespaces),
+   give it access to this repository, then restart the codespace.
+
+Next time, open the same codespace from
+[github.com/codespaces](https://github.com/codespaces). It starts in under a
+minute. Stop it there when you are done, so it doesn't use up your free
+hours.
+
+What's different in a codespace:
+- **Waze** usually refuses requests from GitHub's servers, so the police
+  layer stays empty there. Run it on your computer for Waze.
+- **GodsView's voice AI** refuses requests that arrive through a proxy, as
+  codespaces do, so use it in a local run. GodsView's globe and data work.
+- If the globe pane says it won't show, click **Open GodsView in a new tab**.
+
+### Option B: run it on your computer
+
+**1. Install Node.js** (once). Download the **LTS** installer (version 24 or
+later) from [nodejs.org](https://nodejs.org/en/download) and run it. On
+Windows, restart your computer afterwards.
+
+**2. Get the code.** Easiest: download
+[the ZIP](https://github.com/simonsspamacct-del/godsview-command/archive/refs/heads/main.zip)
+and unzip it. Or, with Git:
+`git clone https://github.com/simonsspamacct-del/godsview-command.git`
+
+**3. Start it.**
+
+- **Windows:** open the folder and double-click **`start.bat`**. If Windows
+  shows "Windows protected your PC", click **More info**, then **Run anyway**.
+- **macOS:** open the folder and double-click **`start.command`**. The first
+  time, macOS may refuse to open it because it was downloaded. Open
+  **System Settings → Privacy & Security**, scroll down, and click
+  **Open Anyway** next to the message about `start.command`. Then
+  double-click it again.
+- **Linux:** in a terminal, `cd` into the folder and run `./start.sh`.
+
+A window opens and sets everything up the first time:
+- installs the packages the console needs
+- creates the `.env` settings file
+- asks whether to download and install GodsView (say yes; it needs Git and
+  takes a few minutes the first time)
+
+Then your browser opens the console at **http://localhost:5050**. Keep that
+window open while you use the console. Close it, or press Ctrl+C, to stop.
+
+**4. Optional settings.** Open `.env` in a text editor:
+- `ANTHROPIC_API_KEY=` — your Anthropic API key, for the AI analyst chat.
+- `NWS_USER_AGENT=` — put your email in place of `you@example.com`; the
+  weather service asks for it.
+
+Then close the window and start again.
+
+### Why "localhost" links don't open
+
+`localhost:5050` means "the console running on *this* computer". It only
+opens on the computer where the start window is running, and only while it
+runs. That's why the links in a chat, on your phone, or on another computer
+don't open. If the console is running and the page still won't load, try
+http://127.0.0.1:5050, and read the start window for an error message.
+
+### Running GodsView yourself
+
+The console starts GodsView for you. To run GodsView separately instead, set
+`GEV_AUTOSTART=0` in `.env`, then add this line to **gods-eye-view/.env**
+before starting it. Without it, GodsView refuses to be embedded:
+
+```
+GEV_EMBED_FRAME_ANCESTORS=http://localhost:5050 http://127.0.0.1:5050
+```
+
+GodsView's own optional keys (Cesium ion, Google Maps, OpenAI for its voice
+agent, AISStream...) are set in GodsView through its **POWER UP** panel,
+not here.
+
 ## How it fits together
 
 ```
@@ -57,38 +158,6 @@ scripted test model.</sub>
 - The globe pane uses GodsView's documented embed protocol: the console posts
   `gev:view` messages (camera, layers and pins for police reports), so the 3D
   globe follows the 2D map.
-
-## Quick start
-
-You need **Node.js 24.14 or later** (GodsView requires it; the console itself
-runs on Node 20.12+).
-
-```bash
-# 1. GodsView, next to this folder
-git clone https://github.com/bilawalsidhu/gods-eye-view.git
-(cd gods-eye-view && npm ci)
-
-# 2. This console
-cd godsview-command
-npm install
-cp .env.example .env      # set NWS_USER_AGENT and ANTHROPIC_API_KEY
-npm start
-```
-
-Open **http://localhost:5050**. The GodsView pill turns green once GodsView
-is up; the first start takes up to a minute.
-
-Prefer to run GodsView yourself? Set `GEV_AUTOSTART=0`, then add this line to
-**gods-eye-view/.env** before starting it. Without it, GodsView refuses to be
-embedded:
-
-```
-GEV_EMBED_FRAME_ANCESTORS=http://localhost:5050 http://127.0.0.1:5050
-```
-
-GodsView's own optional keys (Cesium ion, Google Maps, OpenAI for its voice
-agent, AISStream...) are set in GodsView through its **POWER UP** panel,
-not here.
 
 ## Using it
 
@@ -149,7 +218,10 @@ not here.
 ## Development
 
 ```bash
-npm test                               # unit and end-to-end tests, no network needed
+npm start            # the launcher: set up if needed, then start (same as the start files)
+npm run serve        # just the server, no setup steps
+npm run check        # set up, start, load the page, stop: pass or fail
+npm test             # unit and end-to-end tests, no network needed
 node test/fixtures/fake-gev.js 4173    # a GodsView stand-in with fixture cameras
 ```
 
@@ -157,8 +229,26 @@ The end-to-end test runs the server against the GodsView stand-in and a
 scripted fake of the Messages API. It checks the layers, the camera proxy,
 share links, and the analyst's tool loop.
 
+### Automatic checks on GitHub
+
+`.github/workflows/ci.yml` runs on every push and pull request, and from the
+**Actions** tab with **Run workflow**:
+
+- **Tests** on Windows, macOS and Linux with Node 22 and 24: `npm test`,
+  then `npm run check` starts the console and loads the page.
+- **Full stack**: downloads and installs the real God's Eye View, starts the
+  console (which starts GodsView), and runs `scripts/integration-check.mjs`.
+  It checks that GodsView comes online, answers over MCP, allows the globe
+  pane, and returns share links. NWS, Waze and ALPR results are reported as
+  warnings only, because they depend on outside services.
+
 | Path | What it is |
 | --- | --- |
+| `start.bat`, `start.command`, `start.sh` | Double-click / one-command starters for Windows, macOS, Linux |
+| `scripts/start.mjs` | The launcher they run: checks, setup, start |
+| `scripts/integration-check.mjs` | Full-stack check of a running console and GodsView |
+| `.devcontainer/` | GitHub Codespaces setup |
+| `.github/workflows/ci.yml` | Automatic checks on GitHub |
 | `server.js` | HTTP server and routes |
 | `lib/gev.js` | Starts and supervises GodsView; MCP client |
 | `lib/feeds/` | NWS, Waze, radar and GodsView-backed layers |
@@ -168,22 +258,25 @@ share links, and the analyst's tool loop.
 
 ## Troubleshooting
 
-- **http://localhost:5050 won't open.** The console runs on your own
-  computer, and only while `npm start` is running in a terminal window.
-  Check these in order:
-  - The address has a colon: `http://localhost:5050`.
-  - Open it on the same computer that runs `npm start`. A phone or another
-    machine can't reach it.
-  - The terminal shows `GodsView Command on http://localhost:5050` and is
-    still open. If it shows an error instead, it says what to fix: run
-    `npm install`, free the port, or update Node.
-  - If `localhost` still fails, try `http://127.0.0.1:5050`.
-- **The globe pane says GodsView will not embed here.** Add
-  `GEV_EMBED_FRAME_ANCESTORS` (see Quick start) to GodsView's `.env` and
-  restart it, or let the console start it.
-- **The GodsView pill stays red.** Check `GEV_URL`. If the console starts
-  GodsView, its last log lines appear in the globe pane. Run `npm ci` in
-  `GEV_DIR` first, on Node 24.
-- **Waze shows "refused (HTTP 403)".** Waze blocked the request. Try from a
-  home connection, or use a Waze for Cities feed.
+- **http://localhost:5050 won't open.** See
+  [Why "localhost" links don't open](#why-localhost-links-dont-open). In
+  short: start the console with `start.bat`, `start.command` or `./start.sh`,
+  keep that window open, and open the page on the same computer. The window
+  says what's wrong if it can't start: Node missing or too old, a package
+  install that failed, or the port in use.
+- **Check it yourself.** `npm run check` sets up, starts the console, loads
+  the page and stops, with a clear pass or fail. With the console running,
+  `node scripts/integration-check.mjs` also checks GodsView and each feed.
+- **Windows: "Node.js is not installed" right after installing it.** Restart
+  the computer so Windows picks up the new install, then start again.
+- **The globe pane says GodsView won't show.** Click **Open GodsView in a
+  new tab**. If you run GodsView yourself, add `GEV_EMBED_FRAME_ANCESTORS`
+  to its `.env` (see [Running GodsView yourself](#running-godsview-yourself))
+  and restart it.
+- **The GodsView pill stays red.** GodsView needs Node.js 24.14 or later.
+  Run the start file again: it offers to download and install GodsView.
+  GodsView's last log lines appear in the globe pane.
+- **Waze shows "refused (HTTP 403)".** Waze blocked the request, as it does
+  for cloud servers, including codespaces. Run it from a home connection, or
+  use a Waze for Cities feed.
 - **ALPR or Waze says to zoom in.** Both only load city-sized areas.

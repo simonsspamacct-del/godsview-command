@@ -1,0 +1,33 @@
+// GitHub Codespaces: everything installs when the codespace is created, and
+// the console starts and opens in a browser tab each time you open it.
+{
+  "name": "GodsView Command",
+  "image": "mcr.microsoft.com/devcontainers/base:bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "24" }
+  },
+  "hostRequirements": { "cpus": 2, "memory": "8gb" },
+
+  // Once: install the console, download and install God's Eye View.
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  // Every time the codespace opens: start the console (it starts GodsView).
+  "postAttachCommand": "bash .devcontainer/run.sh",
+
+  "forwardPorts": [5050, 4173],
+  "portsAttributes": {
+    "5050": { "label": "GodsView Command", "onAutoForward": "openBrowser" },
+    "4173": { "label": "GodsView (God's Eye View)", "onAutoForward": "silent" }
+  },
+
+  // Codespaces offers to fill these from your Codespaces secrets.
+  "secrets": {
+    "ANTHROPIC_API_KEY": {
+      "description": "Optional. Your Anthropic API key, for the AI analyst chat.",
+      "documentationUrl": "https://console.anthropic.com/settings/keys"
+    }
+  },
+
+  "customizations": {
+    "codespaces": { "openFiles": ["README.md"] }
+  }
+}

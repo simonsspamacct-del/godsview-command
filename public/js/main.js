@@ -81,8 +81,9 @@ const map = createMap($('#map'), {
 const globe = createGlobe({
   frame: $('#globe-frame'),
   overlay: $('#globe-offline'),
-  gevUrl: status.gev.url,
+  gevUrl: status.gev.publicUrl || status.gev.url,
   onStart: startGodsView,
+  onOpenFull: openFullGodsView,
 });
 
 const panels = createPanels({
@@ -391,15 +392,17 @@ $('#globe-extras').append(
 
 // GodsView's full app, voice agent included, cannot be framed; open it in
 // its own window at this view so it runs side by side with the console.
-$('#globe-open').addEventListener('click', async () => {
+async function openFullGodsView() {
   const win = window.open('about:blank', 'godsview-full');
   try {
     const url = await globe.shareUrl(globeView(cameraForView(map.view())));
     if (win) win.location = url;
   } catch {
-    if (win) win.location = status.gev.url;
+    if (win) win.location = status.gev.publicUrl || status.gev.url;
   }
-});
+}
+
+$('#globe-open').addEventListener('click', openFullGodsView);
 
 /* ---------- status ---------- */
 

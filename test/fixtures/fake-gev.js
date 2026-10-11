@@ -7,6 +7,7 @@
  */
 
 import { createServer } from 'node:http';
+import { pathToFileURL } from 'node:url';
 
 export const CCTV_ROWS = [
   { id: 'atx-congress-6th', name: 'Test camera A', city: 'Fixture city', provider: 'Test DOT', lat: 30.2685, lon: -97.7428, heading_deg: 180, feed_type: 'image', credit: 'test fixture' },
@@ -152,7 +153,7 @@ export function createFakeGev() {
   };
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const port = Number(process.argv[2] || 4173);
   createFakeGev()
     .listen(port)
