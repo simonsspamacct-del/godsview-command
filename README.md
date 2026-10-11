@@ -168,6 +168,16 @@ share links, and the analyst's tool loop.
 
 ## Troubleshooting
 
+- **http://localhost:5050 won't open.** The console runs on your own
+  computer, and only while `npm start` is running in a terminal window.
+  Check these in order:
+  - The address has a colon: `http://localhost:5050`.
+  - Open it on the same computer that runs `npm start`. A phone or another
+    machine can't reach it.
+  - The terminal shows `GodsView Command on http://localhost:5050` and is
+    still open. If it shows an error instead, it says what to fix: run
+    `npm install`, free the port, or update Node.
+  - If `localhost` still fails, try `http://127.0.0.1:5050`.
 - **The globe pane says GodsView will not embed here.** Add
   `GEV_EMBED_FRAME_ANCESTORS` (see Quick start) to GodsView's `.env` and
   restart it, or let the console start it.

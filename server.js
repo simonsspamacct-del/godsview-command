@@ -20,6 +20,10 @@ import { createRegistry } from './lib/registry.js';
 import { createNearby } from './lib/nearby.js';
 import { createAnalyst } from './lib/ai.js';
 
+if (typeof process.loadEnvFile !== 'function') {
+  console.error(`GodsView Command needs Node.js 20.12 or later; this is ${process.version}. Install Node 24 (GodsView needs it too) and try again.`);
+  process.exit(1);
+}
 loadDotEnv();
 const config = readConfig();
 
@@ -221,9 +225,18 @@ const server = createServer(async (req, res) => {
   }
 });
 
+server.on('error', (error) => {
+  if (error.code === 'EADDRINUSE')
+    console.error(`Port ${config.port} is already in use. Another copy of GodsView Command may be running; stop it, or set PORT=${config.port + 1} in .env and open that port instead.`);
+  else if (error.code === 'EACCES') console.error(`Not allowed to listen on port ${config.port}. Set PORT in .env to a number above 1024.`);
+  else console.error(`Could not start the server: ${error.message}`);
+  process.exit(1);
+});
+
 server.listen(config.port, config.host, () => {
   const shown = ['127.0.0.1', '0.0.0.0', '::', 'localhost'].includes(config.host) ? 'localhost' : config.host;
   console.log(`GodsView Command on http://${shown}:${config.port}`);
+  console.log(`Open http://${shown}:${config.port} in a browser on this computer. Keep this window open while you use it.`);
   console.log(`GodsView (God's Eye View) expected at ${config.gev.url}${config.gev.dir ? ` (from ${config.gev.dir})` : ''}`);
   if (!config.ai.keyDetected) console.log('ANTHROPIC_API_KEY is not set; the analyst will try an `ant auth login` profile.');
   gev.init();
