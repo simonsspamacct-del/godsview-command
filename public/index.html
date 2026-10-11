@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GodsView Command</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <img src="/favicon.svg" alt="" width="22" height="22" />
+        <span>GODSVIEW <b>COMMAND</b></span>
+      </div>
+      <form id="search" class="search" autocomplete="off">
+        <input id="search-input" type="search" placeholder="Search a place or paste lat, lon" aria-label="Search a place" />
+        <ul id="search-results" class="search-results" hidden></ul>
+      </form>
+      <div class="status-row" aria-label="Source status">
+        <button type="button" class="pill" id="pill-gev" data-state="unknown" title="God's Eye View"><i></i>GodsView</button>
+        <span class="pill" id="pill-weather" data-state="unknown" title="National Weather Service"><i></i>NWS</span>
+        <span class="pill" id="pill-waze" data-state="unknown" title="Waze reports"><i></i>Waze</span>
+        <span class="pill" id="pill-ai" data-state="unknown" title="AI analyst"><i></i>AI</span>
+      </div>
+      <div class="view-switch" role="group" aria-label="Layout">
+        <button type="button" data-view="map">Map</button>
+        <button type="button" data-view="split" aria-pressed="true">Split</button>
+        <button type="button" data-view="globe">Globe</button>
+      </div>
+      <div class="clock" id="clock"></div>
+    </header>
+
+    <main class="layout" id="layout" data-view="split">
+      <aside class="rail">
+        <section class="rail-section">
+          <h2>Live layers</h2>
+          <ul id="layer-list" class="layer-list"></ul>
+        </section>
+        <section class="rail-section feed">
+          <h2>Live feed <span id="feed-count" class="muted"></span></h2>
+          <div class="feed-tabs" role="tablist" id="feed-tabs">
+            <button type="button" data-tab="all" aria-pressed="true">All</button>
+            <button type="button" data-tab="police">Police</button>
+            <button type="button" data-tab="weather">Weather</button>
+            <button type="button" data-tab="cctv">CCTV</button>
+            <button type="button" data-tab="alpr">ALPR</button>
+          </div>
+          <ol id="feed-list" class="feed-list"></ol>
+        </section>
+      </aside>
+
+      <section class="stage" id="stage">
+        <div class="map-wrap"><div id="map"></div></div>
+        <div class="splitter" id="splitter" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize"></div>
+        <div class="globe">
+          <div class="globe-bar">
+            <span class="globe-title">GodsView</span>
+            <label class="toggle" title="Keep the globe on the map's view"><input type="checkbox" id="globe-follow" checked /> Follow map</label>
+            <details class="globe-extras">
+              <summary>Layers</summary>
+              <div id="globe-extras"></div>
+            </details>
+            <button type="button" id="globe-open" class="ghost" title="Open the full GodsView app, with its voice AI, in its own window at this view">Full app + voice AI ↗</button>
+          </div>
+          <iframe id="globe-frame" title="God's Eye View" allow="microphone; autoplay; fullscreen; clipboard-write"></iframe>
+          <div class="globe-offline" id="globe-offline" hidden></div>
+        </div>
+        <div id="panels" class="panels" aria-live="polite"></div>
+        <div id="toasts" class="toasts" aria-live="polite"></div>
+      </section>
+
+      <aside class="analyst" id="analyst">
+        <header class="analyst-head">
+          <div>
+            <h2>GodsView AI analyst</h2>
+            <p class="muted" id="analyst-model"></p>
+          </div>
+          <div class="analyst-actions">
+            <button type="button" id="brief-btn" class="ghost" title="Situation brief for this view from GodsView">Brief view</button>
+            <button type="button" id="reset-btn" class="ghost" title="Start a new conversation">New</button>
+          </div>
+        </header>
+        <div id="chat-log" class="chat-log"></div>
+        <div class="suggestions" id="suggestions"></div>
+        <form id="chat-form" class="chat-form">
+          <textarea id="chat-input" rows="2" placeholder="Ask about this area: police reports, cameras near a warning…" aria-label="Ask the analyst"></textarea>
+          <button type="submit" id="chat-send">Ask</button>
+        </form>
+      </aside>
+    </main>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"
+      integrity="sha384-9v3HcdYrO3D+OPDTjZ40RXocgE4GtXVCd3/mCS62JsM93JXgI1afJVuwjFvsu6ni"
+      crossorigin="anonymous"
+    ></script>
+    <script type="module" src="/js/main.js"></script>
+  </body>
+</html>
